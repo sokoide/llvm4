@@ -36,6 +36,14 @@ class MyVisitor(SoLangVisitor):
 
         llvm_ir = str(module)
         llvm_ir_parsed = llvm.parse_assembly(llvm_ir)
+
+        # optimizer
+        pmb = llvm.create_pass_manager_builder()
+        pmb.opt_level = 1
+        pm = llvm.create_module_pass_manager()
+        pmb.populate(pm)
+        pm.run(llvm_ir_parsed)
+
         with open("build/out.ll", "w") as f:
             f.write(str(llvm_ir_parsed))
 
@@ -54,7 +62,9 @@ class MyVisitor(SoLangVisitor):
     def visitUnaryExpr(self, ctx: SoLangParser.UnaryExprContext):
         ret = self.visit(ctx.children[1])
         if ctx.children[0].getText() == '-':
-            ret = self.builder.fmul(ret, ir.Constant(self.f64, -1), name='mul_tmp')
+            ret = self.builder.fmul(
+                ret, ir.Constant(
+                    self.f64, -1), name='mul_tmp')
         return ret
 
     def visitMulDivExpr(self, ctx: SoLangParser.MulDivExprContext):

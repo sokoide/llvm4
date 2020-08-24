@@ -28,7 +28,6 @@ expr:	('+'|'-') expr			#unaryExpr
 
 
 ID: [a-zA-Z][a-zA-Z0-9_]+ ;
-/* NUMBER: [+-]?[0-9]+ '.'? [0-9]* ; */
 NUMBER: [0-9]+ '.'? [0-9]* ;
 
 NEWLINE: ( '\r' '\n'?
