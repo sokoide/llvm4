@@ -16,24 +16,37 @@ clean:
 	[ -d build ] && rm -rf build/*
 	[ -d __pycache__ ] && rm -rf __pycache__
 
+tmp: all
+	echo "* running test 1"
+	echo "int add(){return 2*3;} int main(){write(1); write(add()); return 0;}" | python main.py
+	llvm-link build/out.ll build/builtin.ll -S -o build/linked.ll
+	echo "* running linked.ll by lli (inetrpreter)"
+	lli build/linked.ll
+
 test: all
 	echo "* running test 1"
-	echo "int main(){write(-2.5+1.2*2);return 0;}" | python main.py
+	echo "int main(){write(-3+1*2);return 0;}" | python main.py
 	llvm-link build/out.ll build/builtin.ll -S -o build/linked.ll
 	echo "* running linked.ll by lli (inetrpreter)"
 	lli build/linked.ll
 	echo "* running test 2"
 	echo "int main(){write(1+2*(3+4));return 0;}" | python main.py
 	llvm-link build/out.ll build/builtin.ll -S -o build/linked.ll
-	echo "* running linked.ll by lli (inetrpreter)"
-	lli build/linked.ll
-	echo "* running test 3"
-	echo "int main(){write(3*(3+5)/4);write(1);return 0;}" | python main.py
-	llvm-link build/out.ll build/builtin.ll -S -o build/linked.ll
 	llc build/linked.ll -o build/linked.s
 	clang build/linked.s -o build/linked
 	echo "* running native linked"
 	build/linked
+	lli build/linked.ll
+	echo "* running test 3"
+	echo "int main(){write(3*(3+5)/4);write(1);return 0;}" | python main.py
+	llvm-link build/out.ll build/builtin.ll -S -o build/linked.ll
+	echo "* running linked.ll by lli (inetrpreter)"
+	lli build/linked.ll
+	echo "* running test 4"
+	echo "int add(){return 2*3;} int main(){write(1); write(add()); return 0;}" | python main.py
+	llvm-link build/out.ll build/builtin.ll -S -o build/linked.ll
+	echo "* running linked.ll by lli (inetrpreter)"
+	lli build/linked.ll
 
 # generation rules
 $(GRAMMAR_PY): grammar/SoLang.g4

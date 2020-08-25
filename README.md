@@ -1,4 +1,4 @@
-# LLVM4 - Step 01
+# LLVM4 - Step 02
 
 ## About
 
@@ -23,16 +23,45 @@ make test
 
 ```
 
-## Supported Inputs
+## Supported Numbers
 
-* The follwing inputs are supported
-* See grammar/SoLang4.g4 for details
+* All numbers are float internally
+
+## Supported Buitin Functions
+
+* write($number)
+  * write $number in stdout and \n
+
+## Steps
+
+### Step 01
+
+* Simple grammar
+* All numbers are float
+* Input examples:
 
 ```c
 int main(){
 	write(1);
-	write(1*2.3+(4+6)/2);
-	write(2);
+	write(3+4*(1.2+2.3));
+	return 0;
+}
+```
+
+### Step 02
+
+* Changed all numbers from float to integers
+* Added functions, but function arguments are not supported yet
+* Input examples:
+
+```c
+int foo(){
+	return 2*3;;
+}
+
+int main(){
+	write(1);
+	write(foo());
 	return 0;
 }
 ```

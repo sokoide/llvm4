@@ -13,9 +13,11 @@ options {
 
 
 
-compilationUnit: 	'int' 'main' '(' ')' block;
+compilationUnit:	function+ ;
 
-block:   '{' stmt+ '}';
+function: 'int' Ident '(' expr* ')' block ;
+
+block:   '{' stmt+ '}' ;
 
 stmt:	expr ';'					#exprStmt
 	|	Ident '=' expr  ';'			#identStmt
@@ -28,12 +30,13 @@ expr:	('+'|'-') expr			#unaryExpr
     |   expr ('+'|'-') expr 	#addSubExpr
     |   '(' expr ')' 			#parExpr
 	|	Number  				#numberExpr
+	| 	Ident '(' ')'			#functionCallExpr
 	| 	Ident					#identExpr
 	;
 
-
 Ident: [a-zA-Z][a-zA-Z0-9_]+ ;
-Number: [0-9]+ '.'? [0-9]* ;
+/* Number: [0-9]+ '.'? [0-9]* ; */
+Number: [0-9]+ ;
 
 Newline: ( '\r' '\n'?
 	| '\n'
