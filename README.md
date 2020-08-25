@@ -1,7 +1,8 @@
-# LLVM4
+# LLVM4 - Step 01
 
 ## About
 
+* Step XX means the README is for 'stepxx' tag in git
 * LLVM frontend (IR generation) Simple language example with Antlr4 for Python3
 * Please refer to the following 2 for simpler versions
   * [LLVM1](https://github.com/sokoide/llvm1)
@@ -21,3 +22,19 @@
 make test
 
 ```
+
+## Supported Inputs
+
+* The follwing inputs are supported
+* See grammar/SoLang4.g4 for details
+
+```c
+int main(){
+	write(1);
+	write(1*2.3+(4+6)/2);
+	write(2);
+	return 0;
+}
+```
+
+

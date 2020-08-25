@@ -4,7 +4,7 @@ import llvmlite.binding as llvm
 
 
 class MyVisitor(SoLangVisitor):
-    def visitProg(self, ctx: SoLangParser.ProgContext):
+    def visitCompilationUnit(self, ctx: SoLangParser.CompilationUnitContext):
         # llvm init
         llvm.initialize()
         llvm.initialize_native_target()
@@ -31,9 +31,7 @@ class MyVisitor(SoLangVisitor):
         # visit children
         ret = self.visitChildren(ctx)
 
-        # return 0
-        self.builder.ret(ir.Constant(self.i64, 0))
-
+        # generate code
         llvm_ir = str(module)
         llvm_ir_parsed = llvm.parse_assembly(llvm_ir)
 
@@ -55,6 +53,12 @@ class MyVisitor(SoLangVisitor):
         arg = self.visit(ctx.expr())
         ret = self.builder.call(self.fn_write, (arg,), name="write")
         return ret
+
+    def visitReturnStmt(self, ctx: SoLangParser.ReturnStmtContext):
+        ret = self.visit(ctx.expr())
+        # float to unsigned int
+        ret = self.builder.fptoui(ret, self.i64, name="r")
+        return self.builder.ret(ret)
 
     def visitParExpr(self, ctx: SoLangParser.ParExprContext):
         return self.visit(ctx.children[1])
@@ -86,4 +90,4 @@ class MyVisitor(SoLangVisitor):
         return ret
 
     def visitNumberExpr(self, ctx: SoLangParser.NumberExprContext):
-        return ir.Constant(self.f64, float(ctx.NUMBER().getText()))
+        return ir.Constant(self.f64, float(ctx.Number().getText()))

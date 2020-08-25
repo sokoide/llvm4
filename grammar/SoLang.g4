@@ -11,28 +11,43 @@ options {
 	language = Python3;
 }
 
-prog:   stmt+ ;
+
+
+compilationUnit: 	'int' 'main' '(' ')' block;
+
+block:   '{' stmt+ '}';
 
 stmt:	expr ';'					#exprStmt
-	|	ID '=' expr  ';'			#idStmt
+	|	Ident '=' expr  ';'			#identStmt
 	| 	'write' '(' expr ')' ';' 	#writeStmt
+	|	'return' expr ';'			#returnStmt
 	;
 
 expr:	('+'|'-') expr			#unaryExpr
 	|	expr ('*'|'/') expr 	#mulDivExpr
     |   expr ('+'|'-') expr 	#addSubExpr
     |   '(' expr ')' 			#parExpr
-	|	NUMBER  				#numberExpr
-	| 	ID						#idExpr
+	|	Number  				#numberExpr
+	| 	Ident					#identExpr
 	;
 
 
-ID: [a-zA-Z][a-zA-Z0-9_]+ ;
-NUMBER: [0-9]+ '.'? [0-9]* ;
+Ident: [a-zA-Z][a-zA-Z0-9_]+ ;
+Number: [0-9]+ '.'? [0-9]* ;
 
-NEWLINE: ( '\r' '\n'?
+Newline: ( '\r' '\n'?
 	| '\n'
 	) -> skip
 	;
 
-WS: [ \t]+ -> skip;
+Whitespace: [ \t]+ -> skip;
+
+BlockComment
+    :   '/*' .*? '*/'
+        -> skip
+    ;
+
+LineComment
+    :   '//' ~[\r\n]*
+        -> skip
+    ;

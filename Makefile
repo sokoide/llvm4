@@ -17,13 +17,18 @@ clean:
 	[ -d __pycache__ ] && rm -rf __pycache__
 
 test: all
-	echo "* running main.py"
-	echo "write(-2.5+1.2*2);" | python main.py
+	echo "* running test 1"
+	echo "int main(){write(-2.5+1.2*2);return 0;}" | python main.py
 	llvm-link build/out.ll build/builtin.ll -S -o build/linked.ll
 	echo "* running linked.ll by lli (inetrpreter)"
 	lli build/linked.ll
-	echo "* running another test for 3*(3+5)/4 <LF> 1+2*3"
-	echo "write(3*(3+5)/4);write(1);" | python main.py
+	echo "* running test 2"
+	echo "int main(){write(1+2*(3+4));return 0;}" | python main.py
+	llvm-link build/out.ll build/builtin.ll -S -o build/linked.ll
+	echo "* running linked.ll by lli (inetrpreter)"
+	lli build/linked.ll
+	echo "* running test 3"
+	echo "int main(){write(3*(3+5)/4);write(1);return 0;}" | python main.py
 	llvm-link build/out.ll build/builtin.ll -S -o build/linked.ll
 	llc build/linked.ll -o build/linked.s
 	clang build/linked.s -o build/linked

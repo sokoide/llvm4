@@ -13,7 +13,7 @@ def main():
     visitor = grammar.MyVisitor()
 
     # visit AST nodes
-    visitor.visitProg(parser.prog())
+    visitor.visitCompilationUnit(parser.compilationUnit())
 
 
 if __name__ == '__main__':
