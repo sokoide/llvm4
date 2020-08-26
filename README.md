@@ -1,8 +1,7 @@
-# LLVM4 - Step 02
+# LLVM4
 
 ## About
 
-* Step XX means the README is for 'stepxx' tag in git
 * LLVM frontend (IR generation) Simple language example with Antlr4 for Python3
 * Please refer to the following 2 for simpler versions
   * [LLVM1](https://github.com/sokoide/llvm1)
@@ -23,21 +22,18 @@ make test
 
 ```
 
-## Supported Numbers
-
-* All numbers are float internally
-
-## Supported Buitin Functions
-
-* write($number)
-  * write $number in stdout and \n
 
 ## Steps
+
+* Step XX corresponds to 'stepxx' tag in git
 
 ### Step 01
 
 * Simple grammar
-* All numbers are float
+* All numbers are `float`
+* Supported Buitin Functions
+  * write($number)
+    * write $number in stdout and \n
 * Input examples:
 
 ```c
@@ -52,6 +48,7 @@ int main(){
 
 * Changed all numbers from float to integers
 * Added functions, but function arguments are not supported yet
+* Supported Buitin Functions -> Same as Step01
 * Input examples:
 
 ```c
@@ -62,6 +59,31 @@ int foo(){
 int main(){
 	write(1);
 	write(foo());
+	return 0;
+}
+```
+
+### Step 03
+
+* Added variables which must be defined before using
+* Function definition + initialization (int x=3;) is not supported
+* Added function arguments
+* Supported Buitin Functions -> Same as Step01
+* Input examples:
+
+```c
+int add(int a,int b){
+	return a+b;;
+}
+
+int main(){
+	int x;
+	int y;
+	x=2;
+	write(x*2);
+	y=3;
+	write(add(1,2));
+	write(add(x,y));
 	return 0;
 }
 ```

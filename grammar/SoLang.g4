@@ -15,12 +15,13 @@ options {
 
 compilationUnit:	function+ ;
 
-function: 'int' Ident '(' expr* ')' block ;
+function: 'int' Ident '(' paramdefs? ')' block ;
 
 block:   '{' stmt+ '}' ;
 
 stmt:	expr ';'					#exprStmt
-	|	Ident '=' expr  ';'			#identStmt
+	|	'int' Ident ';'				#variableDefinitionStmt
+	|	Ident '=' expr  ';'			#asgnStmt
 	| 	'write' '(' expr ')' ';' 	#writeStmt
 	|	'return' expr ';'			#returnStmt
 	;
@@ -30,11 +31,23 @@ expr:	('+'|'-') expr			#unaryExpr
     |   expr ('+'|'-') expr 	#addSubExpr
     |   '(' expr ')' 			#parExpr
 	|	Number  				#numberExpr
-	| 	Ident '(' ')'			#functionCallExpr
+	| 	Ident '(' params? ')'	#functionCallExpr
 	| 	Ident					#identExpr
 	;
 
-Ident: [a-zA-Z][a-zA-Z0-9_]+ ;
+paramdefs:	paramdef
+	|	paramdefs ',' paramdef
+	;
+
+paramdef:	'int' Ident ;
+
+params: 	param
+	|	params ',' param
+	;
+
+param:	expr ;
+
+Ident: [a-zA-Z][a-zA-Z0-9_]* ;
 /* Number: [0-9]+ '.'? [0-9]* ; */
 Number: [0-9]+ ;
 
