@@ -63,7 +63,7 @@ int main(){
 }
 ```
 
-### Step 0
+### Step 03
 
 * Added variables which must be defined before using
 * Function definition + initialization (int x=3;) is not supported
@@ -87,7 +87,7 @@ int main(){
 }
 ```
 
-### Step 4
+### Step 04
 
 * Added if and conditions
 * Variable symbol tables are still per function (not per block)
