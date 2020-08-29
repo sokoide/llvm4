@@ -18,7 +18,8 @@ clean:
 
 tmp: all
 	echo "* running tmp test"
-	echo "int add(int a, int b){return a+b;} int main(){ int x;x=40+2*1;write(x);write(add(6,4)); return 0;}" | python main.py
+	echo "int main(){int x;x=1;if (x==2) {write(10);} else {write(20);} return 0;}" | python main.py
+	# cat tests/fib.so | python main.py
 	llvm-link build/out.ll build/builtin.ll -S -o build/linked.ll
 	echo "* running linked.ll by lli (inetrpreter)"
 	lli build/linked.ll
@@ -29,6 +30,7 @@ test: all
 	llvm-link build/out.ll build/builtin.ll -S -o build/linked.ll
 	echo "* running linked.ll by lli (inetrpreter)"
 	lli build/linked.ll
+	echo
 	echo "* running test 2"
 	echo "int main(){write(1+2*(3+4));return 0;}" | python main.py
 	llvm-link build/out.ll build/builtin.ll -S -o build/linked.ll
@@ -36,16 +38,15 @@ test: all
 	clang build/linked.s -o build/linked
 	echo "* running native linked"
 	build/linked
-	lli build/linked.ll
+	echo
 	echo "* running test 3"
-	echo "int main(){write(3*(3+5)/4);write(1);return 0;}" | python main.py
+	cat tests/if.solang | python main.py
 	llvm-link build/out.ll build/builtin.ll -S -o build/linked.ll
-	echo "* running linked.ll by lli (inetrpreter)"
 	lli build/linked.ll
+	echo
 	echo "* running test 4"
-	echo "int add(int a, int b){return a+b;} int main(){int x;int y;x=2;y=40;write(1); write(add(x,y)); return 0;}" | python main.py
+	cat tests/fib.solang | python main.py
 	llvm-link build/out.ll build/builtin.ll -S -o build/linked.ll
-	echo "* running linked.ll by lli (inetrpreter)"
 	lli build/linked.ll
 
 # generation rules
