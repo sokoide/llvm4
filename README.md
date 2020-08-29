@@ -46,7 +46,7 @@ int main(){
 
 ### Step 02
 
-* Changed all numbers from float to integers
+* Changed all numbers from `float` to `integer` (i64)
 * Added functions, but function arguments are not supported yet
 * Supported Buitin Functions -> Same as Step01
 * Input examples:
@@ -63,7 +63,7 @@ int main(){
 }
 ```
 
-### Step 03
+### Step 0
 
 * Added variables which must be defined before using
 * Function definition + initialization (int x=3;) is not supported
@@ -82,10 +82,43 @@ int main(){
 	x=2;
 	write(x*2);
 	y=3;
-	write(add(1,2));
 	write(add(x,y));
 	return 0;
 }
 ```
 
+### Step 4
 
+* Added if and conditions
+* Variable symbol tables are still per function (not per block instance) -> recursion breaks
+* Supported Buitin Functions -> Same as Step01
+* Input examples:
+
+```c
+int add(int a,int b){
+	return a+b;;
+}
+
+int main(){
+	int x;
+	int y;
+	x=2;
+	write(x*2);
+	y=3;
+	write(add(x,y));
+
+	if (x==1) {
+		write(10);
+	} else {
+		write(20);
+	}
+	if (y<3) {
+		write(30);
+	} else if(y<2) {
+		write(40);
+	} else {
+		write(50);
+	}
+	return 0;
+}
+```

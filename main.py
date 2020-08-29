@@ -3,6 +3,10 @@ import antlr4
 import sys
 
 
+def func():
+    print("func")
+
+
 def main():
     input = ''.join(sys.stdin.readlines())
     lexer = grammar.SoLangLexer(antlr4.InputStream(input))

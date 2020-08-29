@@ -35,11 +35,11 @@ class MyVisitor(SoLangVisitor):
         llvm_ir_parsed = llvm.parse_assembly(llvm_ir)
 
         # optimizer
-        pmb = llvm.create_pass_manager_builder()
-        pmb.opt_level = 1
-        pm = llvm.create_module_pass_manager()
-        pmb.populate(pm)
-        pm.run(llvm_ir_parsed)
+        # pmb = llvm.create_pass_manager_builder()
+        # pmb.opt_level = 1
+        # pm = llvm.create_module_pass_manager()
+        # pmb.populate(pm)
+        # pm.run(llvm_ir_parsed)
 
         with open("build/out.ll", "w") as f:
             f.write(str(llvm_ir_parsed))
@@ -111,16 +111,57 @@ class MyVisitor(SoLangVisitor):
         ret = self.visit(ctx.expr())
         return self.builder.ret(ret)
 
-    def visitIdentExpr(self, ctx: SoLangParser.IdentExprContext):
-        name = ctx.Ident().getText()
-        if name in self.variables[self.current_function]:
-            ptr = self.variables[self.current_function][name]
-            return self.builder.load(ptr, name)
-        else:
-            return None
+    def visitIf_stmt(self, ctx: SoLangParser.If_stmtContext):
+        cond = self.visit(ctx.cond())
+        with self.builder.if_else(cond) as (then, otherwise):
+            with then:
+                self.visit(ctx.block())
+            with otherwise:
+                if ctx.else_block() is not None:
+                    self.visit(ctx.else_block())
 
-    def visitParExpr(self, ctx: SoLangParser.ParExprContext):
-        return self.visit(ctx.children[1])
+    def visitElse_block(self, ctx: SoLangParser.Else_blockContext):
+        return self.visitChildren(ctx)
+
+    def visitElseif_block(self, ctx: SoLangParser.Elseif_blockContext):
+        return self.visitChildren(ctx)
+
+    def visitCond(self, ctx: SoLangParser.CondContext):
+        if len(ctx.children) == 1:
+            # expr
+            return self.visit(ctx.children[0])
+        else:
+            # expr cond expr
+            if ctx.children[1].getText() == '==':
+                return self.builder.icmp_signed(
+                    '==', self.visit(
+                        ctx.expr(0)), self.visit(
+                        ctx.expr(1)), 'eq')
+            elif ctx.children[1].getText() == '!=':
+                return self.builder.icmp_signed(
+                    '!=', self.visit(
+                        ctx.expr(0)), self.visit(
+                        ctx.expr(1)), 'ne')
+            elif ctx.children[1].getText() == '<=':
+                return self.builder.icmp_signed(
+                    '<=', self.visit(
+                        ctx.expr(0)), self.visit(
+                        ctx.expr(1)), 'le')
+            elif ctx.children[1].getText() == '<':
+                return self.builder.icmp_signed(
+                    '<', self.visit(
+                        ctx.expr(0)), self.visit(
+                        ctx.expr(1)), 'lt')
+            elif ctx.children[1].getText() == '>=':
+                return self.builder.icmp_signed(
+                    '>=', self.visit(
+                        ctx.expr(0)), self.visit(
+                        ctx.expr(1)), 'ge')
+            elif ctx.children[1].getText() == '>':
+                return self.builder.icmp_signed(
+                    '>', self.visit(
+                        ctx.expr(0)), self.visit(
+                        ctx.expr(1)), 'gt')
 
     def visitUnaryExpr(self, ctx: SoLangParser.UnaryExprContext):
         ret = self.visit(ctx.children[1])
@@ -150,6 +191,9 @@ class MyVisitor(SoLangVisitor):
             ret = self.builder.sub(lhs, rhs, name='sub_tmp')
         return ret
 
+    def visitParExpr(self, ctx: SoLangParser.ParExprContext):
+        return self.visit(ctx.children[1])
+
     def visitNumberExpr(self, ctx: SoLangParser.NumberExprContext):
         return ir.Constant(self.i64, int(ctx.Number().getText()))
 
@@ -160,6 +204,14 @@ class MyVisitor(SoLangVisitor):
         print("* args {}".format(args))
         ret = self.builder.call(self.functions[fn_name], args, name=fn_name)
         return ret
+
+    def visitIdentExpr(self, ctx: SoLangParser.IdentExprContext):
+        name = ctx.Ident().getText()
+        if name in self.variables[self.current_function]:
+            ptr = self.variables[self.current_function][name]
+            return self.builder.load(ptr, name)
+        else:
+            return None
 
     def visitParamdefs(self, ctx: SoLangParser.ParamdefsContext):
         ret = []

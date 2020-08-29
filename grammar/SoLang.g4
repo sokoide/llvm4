@@ -1,9 +1,8 @@
 // Please generate visitor by
-//
-// Mac/Linux: alias antlr4=java -jar /path/to/antlr-4.8-complete.jar $*)
-// Win: antlr4.bat contains 'java -jar c:\tools\antlr-4.8-complete.jar %*'
-// Then run,
-// antlr4 SoLang.g4 -no-listener -visitor -o generated
+// 
+// Mac/Linux: alias antlr4=java -jar /path/to/antlr-4.8-complete.jar $*) Win: antlr4.bat contains
+// 'java -jar c:\tools\antlr-4.8-complete.jar %*' Then run, antlr4 SoLang.g4 -no-listener -visitor
+// -o generated
 
 grammar SoLang;
 
@@ -11,59 +10,59 @@ options {
 	language = Python3;
 }
 
+compilationUnit: function+;
 
+function: 'int' Ident '(' paramdefs? ')' block;
 
-compilationUnit:	function+ ;
+block: '{' stmt+ '}';
 
-function: 'int' Ident '(' paramdefs? ')' block ;
+stmt:
+	expr ';'					# exprStmt
+	| 'int' Ident ';'			# variableDefinitionStmt
+	| Ident '=' expr ';'		# asgnStmt
+	| if_stmt					# ifStmt
+	| 'write' '(' expr ')' ';'	# writeStmt
+	| 'return' expr ';'			# returnStmt;
 
-block:   '{' stmt+ '}' ;
+if_stmt: 'if' '(' cond ')' block else_block?;
 
-stmt:	expr ';'					#exprStmt
-	|	'int' Ident ';'				#variableDefinitionStmt
-	|	Ident '=' expr  ';'			#asgnStmt
-	| 	'write' '(' expr ')' ';' 	#writeStmt
-	|	'return' expr ';'			#returnStmt
-	;
+else_block: elseif_block* 'else' block;
 
-expr:	('+'|'-') expr			#unaryExpr
-	|	expr ('*'|'/') expr 	#mulDivExpr
-    |   expr ('+'|'-') expr 	#addSubExpr
-    |   '(' expr ')' 			#parExpr
-	|	Number  				#numberExpr
-	| 	Ident '(' params? ')'	#functionCallExpr
-	| 	Ident					#identExpr
-	;
+elseif_block: 'else' 'if' block;
 
-paramdefs:	paramdef
-	|	paramdefs ',' paramdef
-	;
+cond:
+	expr '==' expr
+	| expr '!=' expr
+	| expr '<=' expr
+	| expr '<' expr
+	| expr '>=' expr
+	| expr '>' expr
+	| expr;
 
-paramdef:	'int' Ident ;
+expr: ('+' | '-') expr		# unaryExpr
+	| expr ('*' | '/') expr	# mulDivExpr
+	| expr ('+' | '-') expr	# addSubExpr
+	| '(' expr ')'			# parExpr
+	| Number				# numberExpr
+	| Ident '(' params? ')'	# functionCallExpr
+	| Ident					# identExpr;
 
-params: 	param
-	|	params ',' param
-	;
+paramdefs: paramdef | paramdefs ',' paramdef;
 
-param:	expr ;
+paramdef: 'int' Ident;
 
-Ident: [a-zA-Z][a-zA-Z0-9_]* ;
+params: param | params ',' param;
+
+param: expr;
+
+Ident: [a-zA-Z][a-zA-Z0-9_]*;
 /* Number: [0-9]+ '.'? [0-9]* ; */
-Number: [0-9]+ ;
+Number: [0-9]+;
 
-Newline: ( '\r' '\n'?
-	| '\n'
-	) -> skip
-	;
+Newline: ( '\r' '\n'? | '\n') -> skip;
 
 Whitespace: [ \t]+ -> skip;
 
-BlockComment
-    :   '/*' .*? '*/'
-        -> skip
-    ;
+BlockComment: '/*' .*? '*/' -> skip;
 
-LineComment
-    :   '//' ~[\r\n]*
-        -> skip
-    ;
+LineComment: '//' ~[\r\n]* -> skip;

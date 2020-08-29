@@ -18,7 +18,7 @@ clean:
 
 tmp: all
 	echo "* running tmp test"
-	echo "int add(int a, int b){return a+b;} int main(){ int x;x=40+2*1;write(x);write(add(6,4)); return 0;}" | python main.py
+	echo "int main(){int x;x=1;if (x==2) {write(10);} else {write(20);} return 0;}" | python main.py
 	llvm-link build/out.ll build/builtin.ll -S -o build/linked.ll
 	echo "* running linked.ll by lli (inetrpreter)"
 	lli build/linked.ll
@@ -44,6 +44,11 @@ test: all
 	lli build/linked.ll
 	echo "* running test 4"
 	echo "int add(int a, int b){return a+b;} int main(){int x;int y;x=2;y=40;write(1); write(add(x,y)); return 0;}" | python main.py
+	llvm-link build/out.ll build/builtin.ll -S -o build/linked.ll
+	echo "* running linked.ll by lli (inetrpreter)"
+	lli build/linked.ll
+	echo "* running test 5"
+	echo "int main(){int x;x=1;if(x==1){write(1);}else{write(2);}; if(x>3){write(10);} if(x>=10){write(100);}else{write(200);}return 0;}" | python main.py
 	llvm-link build/out.ll build/builtin.ll -S -o build/linked.ll
 	echo "* running linked.ll by lli (inetrpreter)"
 	lli build/linked.ll
