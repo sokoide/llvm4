@@ -146,6 +146,7 @@ int fib(int i) {
 
 int main(){
 	write(fib(10));
+	return 0;
 }
 ```
 
