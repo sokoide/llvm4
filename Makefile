@@ -18,7 +18,7 @@ clean:
 
 tmp: all
 	echo "* running tmp test"
-	echo "int main(){int x;x=1;if (x==2) {write(10);} else {write(20);} return 0;}" | python main.py
+	echo "int main(){int x;x=1;write(0);if (x==2) {write(10);} else {write(20);} write(1); write (2);return 0;}" | python main.py
 	llvm-link build/out.ll build/builtin.ll -S -o build/linked.ll
 	echo "* running linked.ll by lli (inetrpreter)"
 	lli build/linked.ll

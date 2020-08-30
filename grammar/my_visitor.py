@@ -30,7 +30,7 @@ class MyVisitor(SoLangVisitor):
         # function prototype (external linkage implemented in builtin.c) for
         # void write(int64_t)
         ftype_write = ir.FunctionType(ir.VoidType(), [self.i64])
-        self.fn_write = ir.Function(self.module, ftype_write, name="write")
+        self.fn_write = ir.Function(self.module, ftype_write, name='write')
 
         self.visitChildren(ctx)
 
@@ -46,7 +46,7 @@ class MyVisitor(SoLangVisitor):
             pmb.populate(pm)
             pm.run(llvm_ir_parsed)
 
-        with open("build/out.ll", "w") as f:
+        with open('build/out.ll', 'w') as f:
             f.write(str(llvm_ir_parsed))
 
         return None
@@ -67,16 +67,26 @@ class MyVisitor(SoLangVisitor):
         # register function
         ftype = ir.FunctionType(self.i64, params)
         func = ir.Function(self.module, ftype, name=name)
-        self.functions[name] = func
-        block = func.append_basic_block(name=block_name)
+        entrybb = func.append_basic_block(name=block_name)
+        retbb = ir.Block(entrybb, name='_ret')
+        # retbb = func.append_basic_block(name='ret')
+        self.functions[name] = {
+                'func': func,
+                'entrybb': entrybb,
+                'retbb': retbb
+                }
 
-        # make a block for func
-        self.builder = ir.IRBuilder(block)
+        # make a block for func entry
+        self.builder = ir.IRBuilder(entrybb)
 
         # define variables for the paramnames
         for paramname in paramnames:
             var = self.builder.alloca(self.i64, size=8, name=paramname)
             self.variables[self.current_function][paramname] = var
+
+        # create _ret variable
+        var = self.builder.alloca(self.i64, size=8, name='_ret')
+        self.variables[self.current_function]['_ret'] = var
 
         # store parameter values to the variables
         i = 0
@@ -87,6 +97,13 @@ class MyVisitor(SoLangVisitor):
             i += 1
 
         ret = self.visitChildren(ctx)
+
+        # make a block for ret
+        func.basic_blocks.append(retbb)
+        self.builder = ir.IRBuilder(retbb)
+        ptr = self.variables[self.current_function]['_ret']
+        value = self.builder.load(ptr, name)
+        self.builder.ret(value)
 
         # ret is always None
         return ret
@@ -109,12 +126,15 @@ class MyVisitor(SoLangVisitor):
     def visitWriteStmt(self, ctx: SoLangParser.WriteStmtContext):
         # call write()
         args = (self.visit(ctx.expr()),)
-        ret = self.builder.call(self.fn_write, (args), name="write")
+        ret = self.builder.call(self.fn_write, (args), name='write')
         return ret
 
     def visitReturnStmt(self, ctx: SoLangParser.ReturnStmtContext):
-        ret = self.visit(ctx.expr())
-        return self.builder.ret(ret)
+        value = self.visit(ctx.expr())
+        ptr = self.variables[self.current_function]['_ret']
+        self.builder.store(value, ptr)
+        self.builder.branch(self.functions[self.current_function]['retbb'])
+        return None
 
     def visitIf_stmt(self, ctx: SoLangParser.If_stmtContext):
         cond = self.visit(ctx.cond())
@@ -204,7 +224,7 @@ class MyVisitor(SoLangVisitor):
         # call function
         fn_name = ctx.Ident().getText()
         args = self.visit(ctx.params())
-        ret = self.builder.call(self.functions[fn_name], args, name=fn_name)
+        ret = self.builder.call(self.functions[fn_name]['func'], args, name=fn_name)
         return ret
 
     def visitIdentExpr(self, ctx: SoLangParser.IdentExprContext):

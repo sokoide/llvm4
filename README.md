@@ -53,7 +53,7 @@ int main(){
 
 ```c
 int foo(){
-	return 2*3;;
+	return 2*3;
 }
 
 int main(){
@@ -73,7 +73,7 @@ int main(){
 
 ```c
 int add(int a,int b){
-	return a+b;;
+	return a+b;
 }
 
 int main(){
@@ -126,3 +126,23 @@ int main(){
 	return 0;
 }
 ```
+
+### Step 05
+
+* Improved `return` and added a `return` block at the end of a function to resolve the problem in Step 04's TODO line
+* Variable symbol tables are still per function (not per block)
+* Supported Buitin Functions -> Same as Step01
+* Input examples:
+
+```c
+int fib(int i) {
+	if(i<=1) { return i; }
+	else { return fib(i-1)+fib(i-2);}
+}
+
+int main(){
+	write(fib(10));
+}
+```
+
+
