@@ -102,6 +102,10 @@ int fib(int i) {
 	return 0; // TODO: it breaks w/o this
 }
 
+int add(int a, int b) {
+	return a+b;
+}
+
 int main(){
 	int x;
 	int y;
