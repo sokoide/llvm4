@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from grammar import SoLangVisitor, SoLangParser
 import llvmlite.ir as ir
 import llvmlite.binding as llvm
@@ -22,11 +23,15 @@ class MyVisitor(SoLangVisitor):
         llvm.initialize_native_target()
         llvm.initialize_native_asmprinter()
 
+        # set target
+        target = llvm.Target.from_default_triple()
+
         # define types
         self.i64 = ir.IntType(64)
         self.f64 = ir.FloatType()
 
         self.module = ir.Module(name='sokoide_module')
+        self.module.triple = target.triple
         # function prototype (external linkage implemented in builtin.c) for
         # void write(int64_t)
         ftype_write = ir.FunctionType(ir.VoidType(), [self.i64])
@@ -71,10 +76,10 @@ class MyVisitor(SoLangVisitor):
         retbb = ir.Block(entrybb, name='_ret')
         # retbb = func.append_basic_block(name='ret')
         self.functions[name] = {
-                'func': func,
-                'entrybb': entrybb,
-                'retbb': retbb
-                }
+            'func': func,
+            'entrybb': entrybb,
+            'retbb': retbb
+        }
 
         # make a block for func entry
         self.builder = ir.IRBuilder(entrybb)
@@ -224,7 +229,8 @@ class MyVisitor(SoLangVisitor):
         # call function
         fn_name = ctx.Ident().getText()
         args = self.visit(ctx.params())
-        ret = self.builder.call(self.functions[fn_name]['func'], args, name=fn_name)
+        ret = self.builder.call(
+            self.functions[fn_name]['func'], args, name=fn_name)
         return ret
 
     def visitIdentExpr(self, ctx: SoLangParser.IdentExprContext):
