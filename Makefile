@@ -1,4 +1,4 @@
-ANTLR4=java -jar /usr/local/lib/antlr-4.8-complete.jar
+ANTLR4=java -jar /usr/local/lib/antlr-4.9-complete.jar
 
 GRAMMAR_PY=build/grammar/SoLangLexer.py \
 build/grammar/SoLang.interp \
